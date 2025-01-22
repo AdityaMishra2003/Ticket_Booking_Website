@@ -1,0 +1,486 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #c7c5c5;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header styles */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background-color: #333333;
+    color: #fff;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* Flex containers for menu and create buttons */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.menu-btn {
+    background: none; /* No background color */
+    border: none; /* Remove border */
+    color: #fff; /* White color for the icon */
+    font-size: 24px; /* Size of the icon */
+    cursor: pointer;
+    margin-left: 10px; /* Spacing from other elements */
+    display: flex;
+    align-items: center;
+}
+
+/* Add any additional styling for the icon if needed */
+.menu-btn i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-btn:focus,
+.menu-btn:active {
+    outline: none; /* Remove the default outline */
+    border: none; /* Ensure no border is shown */
+}
+/* Sidebar hidden state */
+.sidebar.hidden {
+    transform: translateX(-250px); /* Adjust based on your sidebar width */
+    transition: transform 0.3s ease;
+}
+
+/* Expanded main content when sidebar is hidden */
+.main-content.expanded {
+    margin-left: 0; /* Reset left margin */
+    width: 100%; /* Full width when sidebar is hidden */
+    transition: width 0.3s ease;
+}
+
+.create-btn {
+    display: flex;
+    align-items: center;
+    color: #dddd;
+
+    border: 1px solid #ddd; /* Thin white border */
+    border-radius: 8px;
+    padding: 5px 10px;
+    background-color: transparent; /* No background color */
+    cursor: pointer;
+    position: relative; /* To position the options menu */
+}
+
+.create-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 20px;
+    background-color: red; /* Red background for the + icon */
+    border-radius: 50%; /* Circle shape */
+    width: 20px; /* Size of the circle */
+    height: 20px; /* Size of the circle */
+    margin-right: 8px; /* Space between the icon and text */
+}
+
+.create-icon i {
+    color: white; /* Color of the + icon */
+    font-size: 14px; /* Size of the + icon */
+}
+
+.create-btn:focus,
+.create-btn:active,
+.create-icon:focus,
+.create-icon:active,
+.create-icon i:focus,
+.create-icon i:active {
+    outline: none; /* Remove the default outline */
+    border: none; /* Ensure no border is shown */
+}
+
+
+.options-menu {
+    display: none; /* Hide the options menu initially */
+    position: absolute;
+    top: 10%; /* Align with the bottom of the button */
+    left: 3%; /* Align with the left edge of the button */
+    transform: translateX(100%); /* Position directly beside the button */
+    border: 1px solid #ddd; /* Thin white border */
+    background-color: white; /* Background color of the menu */
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 150px; /* Adjust width for better appearance */
+    flex-direction: column; /* Display options vertically */
+}
+
+.options-menu.show {
+    display: flex; /* Show the menu when triggered */
+    flex-direction: column; /* Ensure options are displayed vertically */
+}
+
+.options-menu button {
+    display: block; /* Align buttons vertically */
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: none;
+    text-align: left;
+    color: #333;
+    margin: 0; /* Reset margin */
+}
+
+.options-menu button:hover {
+    background-color: #f0f0f0; /* Add hover effect */
+}
+
+
+
+
+/* Header center for search */
+.header-center {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    border-radius: 50px;
+    border: 1px solid #ddd; /* Outer border */
+    padding: 6px;
+    background-color: transparent; /* Transparent background for the container */
+    box-shadow: none; /* Remove any box shadow from the container */
+}
+
+.search-container i {
+    color: #cdc4c4;
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.search-bar {
+background-color: transparent; /* Keep the background transparent */
+border: none;
+border-radius: 50px;
+font-size: 14px;
+padding: 6px;
+width: 350px;
+color: white; /* Change the text color to white */
+box-shadow: none;
+outline: none;
+}
+
+.search-bar::placeholder {
+color: #ccc; /* Light grey color for the placeholder */
+}
+
+
+.search-bar:focus {
+    outline: none; /* Ensure no outline on focus */
+}
+
+.suggestions {
+background-color: white;
+color: black;
+position: absolute;
+top: 40px; /* Adjust this value to push the suggestions down */
+max-height: 200px;
+overflow-y: auto;
+width: 350px; /* Same width as the search bar */
+border: 1px solid #ddd;
+border-radius: 5px;
+display: none; /* Hidden by default */
+z-index: 1000;
+}
+
+.suggestions div {
+padding: 10px;
+cursor: pointer;
+}
+
+.suggestions div:hover {
+background-color: #f0f0f0;
+}
+
+
+
+/* Header right section */
+.header-right {
+    position: relative;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 40px;
+}
+
+/* Dropdown menu styles */
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 40px;
+    right: 50%; /* Move the dropdown to the center of the parent */
+    transform: translateX(-52%); /* Adjust by 50% of its width to the right */
+    width: 150px; /* Set a specific width for a smaller dropdown */
+    padding: 10px; /* Adjust padding to control the spacing inside */
+    background-color: #fff;
+    color: #000;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    display: block; /* Show when 'show' class is added */
+}
+
+.dropdown-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #000;
+    font-size: 16px;
+}
+
+.dropdown-menu button:hover {
+    background-color: #f0f0f0;
+}
+
+
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    background-color: #333333;
+    color: #ecf0f1;
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    overflow-y: auto;
+    padding-top: 20px;
+}
+
+/* Sidebar menu items */
+.sidebar-menu {
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-btn {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    padding: 10px 20px;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.sidebar-btn i {
+    margin-right: 10px;
+}
+
+.sidebar-btn.active,
+.sidebar-btn:hover {
+    background-color: #444444;
+}
+
+/* Thin separator line */
+
+
+.insights-section,
+.projects-section1,
+.teams-section {
+    padding: 10px 20px;
+}
+
+.insights-section h3,
+.projects-section1 h3,
+.teams-section h3 {
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    color: #ecf0f1;
+    border-bottom: 1px solid #555555;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+}
+
+.add-icon {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-size: 18px;
+    cursor: pointer;
+}
+.add-icon-insight {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.add-icon-project {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.insights-list,
+.projects-list,
+.teams-list {
+    padding: 0;
+    margin: 0;
+}
+
+.insights-list button,
+.projects-list button,
+.teams-list button {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    padding-bottom: 10px;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.insights-list button:hover,
+.projects-list button:hover,
+.teams-list button:hover {
+    background-color: #444444;
+}
+
+
+
+
+
+.invite-btn,
+.help-btn {
+    background-color: #444444;
+    color: #ecf0f1;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.invite-btn:hover,
+.help-btn:hover {
+    background-color: #555555;
+}
+
+.cards {
+                display: flex;
+                justify-content: space-between;
+                width: 90%;
+                gap: 20px;
+            }
+
+            .card {
+                background-color: #ffffff;
+                border-radius: 12px;
+                padding: 20px;
+                width: 100%;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                text-align: center;
+                margin-bottom: 10px;
+                transition: transform 0.2s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-10px);
+            }
+
+            .card h2 {
+                font-size: 20px;
+                margin-bottom: 10px;
+                color: #333;
+            }
+
+            .count {
+                font-size: 28px;
+                font-weight: bold;
+                color: #672525;
+            }
+
+            .charts {
+                display: flex;
+                justify-content: space-between;
+                width: 90%;
+                margin-top: 20px;
+            }
+
+            .chart {
+                background-color: #ffffff;
+                border-radius: 12px;
+                padding: 20px;
+                width: 48%;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .chart h3 {
+                font-size: 18px;
+                margin-bottom: 15px;
+                color: #333;
+            }
+
+            canvas#myBarChart {
+            width: 100%;
+            height: 500px; /* Increased height for the bar chart */
+        }
+
+        canvas#donutChart {
+            width: 70%; /* Make the donut chart smaller */
+            height: 200px; /* Decrease height for the donut chart */
+            margin: 0 auto; /* Center the donut chart */
+        }
+
+
+            .main-content {
+                margin-left: 220px;
+                padding: 20px;
+                flex-grow: 1;
+                background-color: #f5f5f5;
+                margin-top: 60px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+

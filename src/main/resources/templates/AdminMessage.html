@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="" th:href="@{/css/AdminMessages.css}"/>
+    <style>
+
+    </style>
+
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="create-container">
+                <button class="create-btn" id="create-btn">
+                    <div class="create-icon">
+                        <i class="bi bi-plus"></i>
+                    </div>
+                    Create
+                </button>
+                <div class="options-menu" id="options-menu">
+                    <!-- Add your 6 options here -->
+                    <button><i class="bi bi-check2-circle"></i> Task</button>
+                    <button class="add-project"><i class="bi bi-folder"></i> Project</button>
+                    <button class="add-team"><i class="bi bi-people"></i> Team</button>
+                   
+                   
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Popup Modal -->
+       <!-- Task Popup Modal -->
+        <div id="task-popup" class="task-popup">
+               <div class="popup-content">
+                <span class="close-btn" id="close-btn">&times;</span>
+                <h2>Task Details</h2>
+                <form method="POST" action="/tasks/save"> <!-- Ensure method and action are correct -->
+                    <input type="hidden" name="redirectUrl" value="/AdminMessage">
+                     <label for="task-name">Task Name:</label>
+                    <input type="text" id="task-name" name="task-name" placeholder="Enter Task Name" required>
+
+                    <label for="employee-select">Select Employees:</label>
+                    <select id="employee-select" name="employee-select" multiple required> <!-- Change name to employeeIds -->
+                        <option th:each="user : ${users}" 
+                                th:value="${user.empId}" 
+                                th:text="${user.fullname}">
+                        </option>
+                    </select>
+
+                    <label for="project-select">Select Project:</label>
+                    <select id="project-select" name="projectId" required>
+                        <option th:each="project : ${OnGoingProject}" 
+                                th:value="${project.projectId}" 
+                                th:text="${project.projectName}">
+                        </option>
+                    </select>
+
+
+                    <label for="due-date">Due Date:</label>
+                    <input type="date" id="due-date" name="dueDate" min="" required> <!-- Ensure the name matches the controller -->
+
+                    <button type="submit">Save Task</button> <!-- Change to type="submit" -->
+                            </form>
+                  </div>
+        </div>
+
+        <div class="header-center">
+            <div class="search-container">
+                <i class="bi bi-search"></i>
+                <input type="text" class="search-bar" placeholder="Search..." onkeyup="showSuggestions(this.value)">
+                <div class="suggestions" id="suggestions-box"></div>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="profile-btn">
+                <i class="bi bi-person-circle"></i>
+            </button>
+            <div class="dropdown-menu" id="profile-menu">
+                <form action="/AdminProfile" method="get">
+                    <button>Profile</button>
+                </form>
+                <form action="/AdminPassword" method="get">
+                    <button>Settings</button>
+                </form>
+            <form action="/logout" method="post">
+                <button type="submit">Log Out</button>
+            </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <!-- Section 1: Navigation -->
+        <div class="sidebar-menu">
+            <a th:href="@{/AdminDashboard}" class="sidebar-btn"><i class="bi bi-house"></i> Home</a>
+            <a th:href="@{/AdminTask}" class="sidebar-btn"><i class="bi bi-list-check"></i> My Tasks</a>
+            <a th:href="@{/AdminMessage}" class="sidebar-btn active"><i class="bi bi-envelope"></i> Inbox</a>
+        </div>
+
+        <!-- Section 2: Insights -->
+        <div class="insights-section">
+            <h3>Insights </h3>
+            <div class="insights-list">
+                <a th:href="@{/admin/Reporting}" class="sidebar-btn"><i class="bi bi-bar-chart"></i> Reporting</a>
+                <a th:href="@{/AdminPortfolio}" class="sidebar-btn"><i class="bi bi-briefcase"></i> Portfolios</a>
+               
+            </div>
+        </div>
+
+        <!-- Section 3: Projects -->
+        <div class="projects-section1">
+            <h3>Projects <button class="add-icon-project"><i class="bi bi-plus"></i></button></h3>
+            <div class="projects-list">
+                <!-- Thymeleaf iteration for projects -->
+                <a th:href="@{/AdminProject}" class="sidebar-btn"><i class="bi bi-folder"></i> All Projects</a>
+
+            </div>
+        </div>
+
+        <!-- Section 4: Teams -->
+        <div class="teams-section">
+            <h3>Teams <button class="add-icon"><i class="bi bi-plus"></i></button></h3>
+            <div class="teams-list">
+                <a th:href="@{/AdminTeam}" class="sidebar-btn browse-teams"><i class="bi bi-people"></i> Browse teams</a>
+
+            </div>
+        </div>
+    </div>
+
+ <!-- Modal Popup for Creating a Team -->
+ <div class="modal fade" id="createTeamModal" tabindex="-1" aria-labelledby="createTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createTeamModalLabel">Create New Team</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Updated form with action to submit to /teams/create -->
+                <form id="createTeamForm" method="POST" action="/teams/create">
+                    <input type="hidden" name="redirectUrl" value="/AdminMessage">
+                    <div class="form-group">
+                        <label for="teamName">Team Name</label>
+                        <input type="text" class="form-control" id="teamName" name="teamName" placeholder="Enter team name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="teamMembers">Select Team Members</label>
+                        <select multiple class="form-control" id="teamMembers" name="memberIds">
+                            <option th:each="user : ${users}" th:value="${user.empId}" th:text="${user.fullname}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Team</button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createProjectModalLabel">Create New Project</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createProjectForm" method="POST" action="/projects/create">
+                    <input type="hidden" name="redirectUrl" value="/AdminMessage">
+                    <div class="form-group">
+                        <label for="projectId">Project Id</label>
+                        <input type="text" class="form-control" id="projectId" name="projectId" placeholder="Enter project Id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectName">Project Name</label>
+                        <input type="text" class="form-control" id="projectName" name="projectName" placeholder="Enter project name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDueDate">Project Due Date</label>
+                        <input type="date" class="form-control" id="projectDueDate" name="projectDueDate" required>
+                    </div>
+
+                    <div class="form-group team-members-group">
+                        <label for="TeamMembers">Select Team</label>
+                        <!-- Multiple select field -->
+                        <select class="form-control" id="TeamMembers" name="teamName" required>
+                            <!-- Dynamically rendered options for team members -->
+                            <option th:each="team : ${teams}" th:value="${team.teamName}" th:text="${team.teamName}">John Doe</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-1">
+    <div th:if="${successMessage}" class="alert success-message">
+        <p th:text="${successMessage}"></p>
+    </div>
+    <!-- Div 1: Message List -->
+    <div class="div-1">
+        <h3>Messages Received</h3>
+        <div th:each="message : ${allunreadMessages}" class="mail-item-1">
+            <span th:text="${message.subject}">Subject</span>
+            <p th:text="${message.body}">Subject</p>
+            <button 
+            th:attr="data-sender=${message.senderEmail}, data-subject=${message.subject}" 
+            onclick="openReplyPopup(this)">
+            Reply
+        </button>
+    
+    </div>
+    </div>
+
+    <!-- Div 2: Send Mail Form -->
+    <div class="div-2">
+        <h3>Send Mail to Employees</h3>
+        <form th:action="@{/Admin/sendMessage}" method="post" id="admin-mail-form-1">
+            <label for="to-1">To:</label>
+            <select id="to-1" name="receiverEmail" class="form-control-1" placeholder="Recipient's Email" required>
+                <option th:each="user : ${users}" th:value="${user.username}" th:text="${user.username}"></option>
+            </select>
+            <br><br>
+
+            <label for="subject-1">Subject:</label><br>
+            <input type="text" id="subject-1" name="subject" class="form-control-1" placeholder="Enter subject"><br><br>
+
+            <label for="message-1">Message:</label><br>
+            <textarea id="message-1" class="form-control-1" name="body" rows="4" placeholder="Type your message here"></textarea><br><br>
+
+            <button type="submit">Send Mail</button>
+        </form>
+    </div>
+</div>
+
+<!-- Reply Popup -->
+<div class="overlay-1" id="overlay-1"></div>
+<div class="popup-1" id="reply-popup-1">
+    <button class="close-btn-1" onclick="closeReplyPopup()">&times;</button>
+    <h3>Reply to Message</h3>
+    <form id="reply-form-1" th:action="@{/Admin/sendReply}" method="post">
+        <label for="reply-to">Sender's Email:</label><br>
+        <input type="text" id="reply-sender-email" name="receiverEmail" class="form-control-1" readonly><br><br>
+        <label for="reply-to-subject">Subject:</label><br>
+        <input type="text" id="reply-sender-subject" name="subject" class="form-control-1" readonly><br><br>
+
+        <label for="reply-message-1">Message:</label><br>
+        <textarea id="reply-message-1" class="form-control-1" name="body" rows="4" placeholder="Type your reply here"></textarea><br><br>
+
+        <button type="submit">Send Reply</button>
+    </form>
+</div>
+
+<div class="modal-overlay" id="messageModalOverlay" style="display:none;">
+    <div class="modal" id="messageModal">
+        <button class="close-btn-1">&times;</button>
+        <h3>Send Mail</h3>
+        <form id="modal-mail-form" th:action="@{/Admin/sendMessage}" method="post">
+            <label for="modal-to">To:</label>
+            <select id="modal-to" name="receiverEmail" class="form-control-1" placeholder="Recipient's Email" required>
+                <option th:each="user : ${users}" th:value="${user.username}" th:text="${user.username}"></option>
+            </select>
+            <br><br>
+
+            <label for="modal-subject">Subject:</label><br>
+            <input type="text" id="modal-subject" name="subject" class="form-control-1" placeholder="Enter subject"><br><br>
+
+            <label for="modal-message">Message:</label><br>
+            <textarea id="modal-message" name="body" class="form-control-1" rows="4" placeholder="Type your message here"></textarea><br><br>
+
+            <button type="submit">Send Mail</button>
+        </form>
+    </div>
+</div>
+    <!-- Include jQuery and Bootstrap scripts -->
+    <script>
+        
+    
+
+        setTimeout(function() {
+            let successMessage = document.querySelector('.success-message');
+            if(successMessage) {
+                successMessage.style.display = 'none';
+            }
+        }, 3000); // Hide after 5 seconds
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+    // Show the 'Create New Project' modal when the add-icon-project in Projects section is clicked
+    $('.add-icon-project , .add-project').click(function() {
+        $('#createProjectModal').modal('show');
+    });
+
+    // Initialize Select2 for team members selection
+    $(document).ready(function() {
+    $('#TeamMembers').select2({
+        placeholder: "Select team members",
+        allowClear: true,
+    });
+        });
+        
+       });
+
+    </script>
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle nav option clicks
+        const navOptions = document.querySelectorAll('.nav-option');
+        const activeContent = document.getElementById('active-content-1');
+        const messagesContent = document.getElementById('messages-content-1');
+
+        navOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                navOptions.forEach(opt => opt.classList.remove('active'));
+
+                // Add active class to the clicked option
+                this.classList.add('active');
+
+                // Show/Hide content based on selected option
+                if (this.dataset.target === 'active-content-1') {
+                    activeContent.style.display = 'block';
+                    messagesContent.style.display = 'none';
+                } else if (this.dataset.target === 'messages-content-1') {
+                    activeContent.style.display = 'none';
+                    messagesContent.style.display = 'block';
+                }
+            });
+        });
+
+        // Handle filter, sort, and more options icon clicks
+        function toggleDropdown(id) {
+            var dropdowns = document.querySelectorAll('.dropdown-content');
+            dropdowns.forEach(function(dropdown) {
+                if (dropdown.id === id) {
+                    dropdown.classList.toggle('show');
+                } else {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+
+        document.getElementById('filter-icon-1').addEventListener('click', function() {
+            toggleDropdown('filter-dropdown-1');
+        });
+        document.getElementById('sort-icon-1').addEventListener('click', function() {
+            toggleDropdown('sort-dropdown-1');
+        });
+        document.getElementById('more-options-icon-1').addEventListener('click', function() {
+            toggleDropdown('more-options-dropdown-1');
+        });
+
+        // Close dropdowns when clicking outside
+        window.addEventListener('click', function(event) {
+            if (!event.target.matches('.bi')) {
+                var dropdowns = document.querySelectorAll('.dropdown-content');
+                dropdowns.forEach(function(dropdown) {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar visibility
+        document.querySelector('.menu-btn').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('hidden');
+            document.querySelector('.container-1').classList.toggle('expanded');
+        });
+    
+       // Get elements
+        
+            // Toggle options menu
+            document.getElementById('create-btn').addEventListener('click', function(event) {
+            const optionsMenu = document.getElementById('options-menu');
+            optionsMenu.classList.toggle('show');
+            event.stopPropagation(); // Prevents the click event from propagating to the document
+        });
+
+        document.addEventListener('click', function(event) {
+            const optionsMenu = document.getElementById('options-menu');
+            const createBtn = document.getElementById('create-btn');
+
+            // Check if the click was outside the menu and the button
+            if (!optionsMenu.contains(event.target) && event.target !== createBtn) {
+                optionsMenu.classList.remove('show');
+            }
+        });
+
+       
+
+
+        $(document).ready(function() {
+        $('#employee-select').select2({
+            placeholder: "Select Employees",
+            allowClear: true,
+            closeOnSelect: false
+        });
+        // Show task popup
+        document.querySelector('.options-menu button').addEventListener('click', function() {
+            document.getElementById('task-popup').style.display = 'flex';
+        });
+
+        // Hide task popup
+        document.getElementById('close-btn').addEventListener('click', function() {
+            document.getElementById('task-popup').style.display = 'none';
+        });
+
+        const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+        document.getElementById('due-date').setAttribute('min', today);
+        // Close task popup when 'Save Task' button is clicked
+
+        document.querySelector('#task-popup button[type="button"]').addEventListener('click', function() {
+            const selectedEmployees = $('#employee-select').val();
+            console.log("Selected Employees: ", selectedEmployees);
+            document.getElementById('task-popup').style.display = 'none';
+        });
+    });
+    
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.profile-btn').addEventListener('click', function(event) {
+        const profileMenu = document.getElementById('profile-menu');
+        profileMenu.classList.toggle('show');
+        event.stopPropagation(); // Prevents the click from propagating to the document
+    });
+
+    // Close the dropdown if clicked outside
+    document.addEventListener('click', function(event) {
+        const profileMenu = document.getElementById('profile-menu');
+        if (!profileMenu.contains(event.target) && !event.target.closest('.profile-btn')) {
+            profileMenu.classList.remove('show');
+        }
+    });
+});
+
+       
+    
+    
+    
+    
+        // Close options menu when clicking outside
+        document.addEventListener('click', function (event) {
+            if (!optionsMenu.contains(event.target) && !createBtn.contains(event.target)) {
+                optionsMenu.classList.remove('show');
+            }
+        });
+    
+        // Initialize Bootstrap modal
+        $('.add-icon , .add-team').click(function() {
+            $('#createTeamModal').modal('show');
+        });
+        $(document).ready(function() {
+            $('#teamMembers').select2({
+                placeholder: "Select team members",
+                allowClear: true,
+                closeOnSelect: false // Keeps the dropdown open after selection
+            });
+        });
+    });
+    
+    function showTab(tabName) {
+        var tabs = document.getElementsByClassName('task-content');
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].style.display = 'none';
+        }
+        document.getElementById(tabName).style.display = 'block';
+    }
+    const profileBtn = document.querySelector('.profile-btn');
+    const profileMenu = document.getElementById('profile-menu');
+    
+    profileBtn.addEventListener('click', function() {
+        profileMenu.classList.toggle('show');
+    });
+    
+    document.addEventListener('click', function(event) {
+        if (!profileBtn.contains(event.target) && !profileMenu.contains(event.target)) {
+            profileMenu.classList.remove('show');
+        }
+    });
+</script>
+<script>
+ // Open reply popup
+function openReplyPopup(button) {
+    const senderEmail = button.getAttribute('data-sender');
+    const subject = button.getAttribute('data-subject');
+    document.getElementById('reply-sender-email').value = senderEmail;
+    document.getElementById('reply-sender-subject').value = "replying To: "+subject; // Set sender's email
+    document.getElementById('overlay-1').style.display = 'block';
+    document.getElementById('reply-popup-1').style.display = 'block';
+}
+
+// Close reply popup
+function closeReplyPopup() {
+    document.getElementById('overlay-1').style.display = 'none';
+    document.getElementById('reply-popup-1').style.display = 'none';
+}
+
+</script>
+
+
+
+</script>
+<script>
+    const pages = [
+            { name: "Portfolios", url: /*[[@{/AdminPortfolio}]]*/ 'AdminPortfolio' },
+            { name: "MyTask", url: /*[[@{/AdminTask}]]*/ 'AdminTask' },
+            { name: "Reporting",  url: /*[[@{/admin/Reporting}]]*/ 'admin/Reporting'},
+            { name: "Inbox", url: /*[[@{/AdminMessage}]]*/ 'AdminMessage' },
+            { name: "All Projects", url: /*[[@{/AdminProject}]]*/ 'AdminProject' }
+        ];
+
+    // Show suggestions as the user types
+    function showSuggestions(query) {
+        const suggestionsBox = document.getElementById('suggestions-box');
+        suggestionsBox.innerHTML = ''; // Clear previous suggestions
+        if (query.length === 0) {
+            suggestionsBox.style.display = 'none'; // Hide if no input
+            return;
+        }
+
+        const filteredPages = pages.filter(page => page.name.toLowerCase().includes(query.toLowerCase()));
+
+        filteredPages.forEach(page => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.textContent = page.name;
+            suggestionItem.onclick = () => window.location.href = page.url; // Navigate on click
+            suggestionsBox.appendChild(suggestionItem);
+        });
+
+        suggestionsBox.style.display = filteredPages.length > 0 ? 'block' : 'none'; // Show or hide suggestions
+    }
+</script>
+</body>
+</html>

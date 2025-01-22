@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #c7c5c5;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header styles */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background-color: #333333;
+    color: #fff;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* Flex containers for menu and create buttons */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.menu-btn {
+    background: none; /* No background color */
+    border: none; /* Remove border */
+    color: #fff; /* White color for the icon */
+    font-size: 24px; /* Size of the icon */
+    cursor: pointer;
+    margin-left: 10px; /* Spacing from other elements */
+    display: flex;
+    align-items: center;
+}
+
+/* Add any additional styling for the icon if needed */
+.menu-btn i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-btn:focus,
+.menu-btn:active {
+    outline: none; /* Remove the default outline */
+    border: none; /* Ensure no border is shown */
+}
+/* Sidebar hidden state */
+.sidebar.hidden {
+    transform: translateX(-250px); /* Adjust based on your sidebar width */
+    transition: transform 0.3s ease;
+}
+
+/* Expanded main content when sidebar is hidden */
+.main-content.expanded {
+    margin-left: 0; /* Reset left margin */
+    width: 100%; /* Full width when sidebar is hidden */
+    transition: width 0.3s ease;
+}
+
+
+
+
+/* Header center for search */
+.header-center {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-container {
+                display: flex;
+                align-items: center;
+                border-radius: 50px;
+                border: 1px solid #ddd; /* Outer border */
+                padding: 6px;
+                background-color: transparent; /* Transparent background for the container */
+                box-shadow: none; /* Remove any box shadow from the container */
+            }
+    
+            .search-container i {
+                color: #cdc4c4;
+                font-size: 18px;
+                margin-right: 8px;
+            }
+    
+            .search-bar {
+    background-color: transparent; /* Keep the background transparent */
+    border: none;
+    border-radius: 50px;
+    font-size: 14px;
+    padding: 6px;
+    width: 350px;
+    color: white; /* Change the text color to white */
+    box-shadow: none;
+    outline: none;
+    }
+    
+    .search-bar::placeholder {
+    color: #ccc; /* Light grey color for the placeholder */
+    }
+    
+    
+            .search-bar:focus {
+                outline: none; /* Ensure no outline on focus */
+            }
+    
+            .suggestions {
+    background-color: white;
+    color: black;
+    position: absolute;
+    top: 40px; /* Adjust this value to push the suggestions down */
+    max-height: 200px;
+    overflow-y: auto;
+    width: 350px; /* Same width as the search bar */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: none; /* Hidden by default */
+    z-index: 1000;
+    }
+    
+    .suggestions div {
+    padding: 10px;
+    cursor: pointer;
+    }
+    
+    .suggestions div:hover {
+    background-color: #f0f0f0;
+    }
+
+
+/* Header right section */
+.header-right {
+    position: relative;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 40px;
+}
+
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 40px;
+    right: 50%; /* Move the dropdown to the center of the parent */
+    transform: translateX(-52%); /* Adjust by 50% of its width to the right */
+    width: 150px; /* Set a specific width for a smaller dropdown */
+    padding: 10px; /* Adjust padding to control the spacing inside */
+    background-color: #fff;
+    color: #000;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    display: block; /* Show when 'show' class is added */
+}
+
+.dropdown-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #000;
+    font-size: 16px;
+}
+
+.dropdown-menu button:hover {
+    background-color: #f0f0f0;
+}
+
+
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    background-color: #333333;
+    color: #ecf0f1;
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    overflow-y: auto;
+    padding-top: 20px;
+}
+
+/* Sidebar menu items */
+.sidebar-menu {
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-btn {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    padding: 10px 20px;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.sidebar-btn i {
+    margin-right: 10px;
+}
+
+.sidebar-btn.active,
+.sidebar-btn:hover {
+    background-color: #444444;
+}
+
+/* Thin separator line */
+
+
+.insights-section,
+.projects-section1,
+.teams-section {
+    padding: 10px 20px;
+}
+
+.insights-section h3,
+.projects-section1 h3,
+.teams-section h3 {
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    color: #ecf0f1;
+    border-bottom: 1px solid #555555;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+}
+
+.add-icon {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-size: 18px;
+    cursor: pointer;
+}
+.add-icon-insight {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.add-icon-project {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.insights-list,
+.projects-list,
+.teams-list {
+    padding: 0;
+    margin: 0;
+}
+
+.insights-list button,
+.projects-list button,
+.teams-list button {
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    padding-bottom: 10px;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.insights-list button:hover,
+.projects-list button:hover,
+.teams-list button:hover {
+    background-color: #444444;
+}
+
+.browse-teams {
+    display: block;
+    padding: 10px 20px;
+    color: #ecf0f1;
+    text-align: left;
+    font-size: 16px;
+    background: none;
+    border: none;
+    margin-top: 10px;
+    cursor: pointer;
+    border-top: 1px solid #555555;
+}
+
+
+
+.invite-btn,
+.help-btn {
+    background-color: #444444;
+    color: #ecf0f1;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.invite-btn:hover,
+.help-btn:hover {
+    background-color: #555555;
+}
+
+
+
+.task-content {
+    margin-top: 20px;
+    border-radius: 8px;
+    padding: 20px;
+    width: 100%;
+    max-width: 100%;
+    max-height: 800px;
+    border: none;
+    text-align: center;
+}
+
+.task-content.active {
+    display: block;
+    opacity: 1;
+    height: auto; 
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+/* Header styling */
+th {
+    background-color: #e0f7fa; /* Light cyan */
+    color: #00796b; /* Dark teal */
+}
+
+/* Alternate row coloring for better readability */
+tr:nth-child(even) {
+    background-color: #f1f8e9; /* Light green */
+}
+
+tr:nth-child(odd) {
+    background-color: #ffffff; /* White */
+}
+
+/* Hover effect */
+tr:hover {
+    background-color: #ffe0b2; /* Light orange */
+}
+
+/* Text color for rows */
+td {
+    color: #424242; /* Dark grey */
+}
+
+/* Main content styles */
+.container {
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    flex-direction: column;
+    margin-top: 30px; /* Adjust based on header height */
+    margin-left: 260px; /* Adjust based on sidebar width */
+    min-height: calc(100vh - 100px); /* Full height minus header height */
+    width: 100%;
+    max-width: 83%;
+}
+
+/* Content area */
+.main-content {
+    display: flex;
+    flex-direction: column; /* Stack divs vertically */
+    gap: 20px; /* Adjust the gap between content sections as needed */
+    padding: 20px;
+    width: 100%; /* Ensures the content takes full available width */
+    max-width: 2700px; /* Adjust the maximum width of the main content area */
+    margin: 70px auto; /* Center the content and add margin above */
+}
+
+/* Content section styling */
+.content-section {
+    padding: 20px;
+    background-color: rgb(236, 232, 232); /* Gentle light gray */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.3s;
+    overflow-y: auto;
+    height: 400px;
+    width: 100%;
+    max-width: 100%; /* Ensure sections take full width available within the main content */
+}
+
+.content-section:hover {
+    background-color: #e0e0e0; /* Slightly darker light gray for hover effect */
+    transform: translateY(-5px);
+}
+
+
+/* Table styles */
+.complete-btn {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.complete-btn:hover {
+    background-color: #555;
+}
+
+.completed-task-btn {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #444343;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    font-size: 16px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.content-section.completed-tasks {
+    min-height: 200px; /* Set a minimum height for completed tasks section */
+    max-height: 400px; /* Set a maximum height */
+}
+.completed-task-btn:hover {
+    background-color: #333333;
+    transform: translateY(-3px);
+}
+
+.completed-task-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    background-color: #f9f9f9;
+    margin: 10px 0;
+    padding: 0 10px;  /* Remove vertical padding by default */
+    border-radius: 5px;
+}
+
+.completed-task-details.open {
+    padding: 10px;  /* Add padding when the details are opened */
+}
+
+.content-section h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.completed-tasks-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 30px;
+}
+
+.completed-tasks-list li {
+    margin-bottom: 20px;
+}
+
+/* Table styles */
+.task-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.task-table th,
+.task-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.task-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.task {
+    margin-bottom: 5px;
+}
+
+#unique-header{
+    font-style: bold;
+    font-size: 1.2em;
+    color: #043061;
+    width: 50%;
+    text-align: left;
+    padding: 8px;
+    border-radius: 5px;
+    transition: color 0.3s ease;
+}
+
+#unique-header:hover {
+    color: #D35400;
+}
+
+
+
+    </style>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn">
+                <i class="bi bi-list"></i>
+            </button>
+           
+        </div>
+        <div class="header-center">
+            <div class="search-container">
+                <i class="bi bi-search"></i>
+                <input type="text" class="search-bar" placeholder="Search..." onkeyup="showSuggestions(this.value)">
+                <div class="suggestions" id="suggestions-box"></div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="profile-btn">
+                <i class="bi bi-person-circle"></i>
+            </button>
+            <div class="dropdown-menu" id="profile-menu">
+                <form action="/UserProfile" method="get">
+                    <button type="submit">Profile</button>
+                </form>
+                <form action="/UserPassword" method="get">
+                    <button>Settings</button>
+                </form>
+                <form action="/logout" method="post">
+                    <button type="submit">Log Out</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <!-- Section 1: Navigation -->
+        <div class="sidebar-menu">
+            <a th:href="@{/UserDashboard}" class="sidebar-btn ">
+                <i class="bi bi-house"></i> Home
+             </a>
+            <a th:href="@{/EmpTask}" class="sidebar-btn">
+                <i class="bi bi-bar-chart"></i> MyTask
+            </a>
+            <a th:href="@{/UserMessage}" class="sidebar-btn"><i class="bi bi-envelope">
+
+            </i> Inbox</a>
+        </div>
+
+        <!-- Section 2: Insights -->
+        <div class="insights-section">
+            <h3>Insights </h3>
+            <div class="insights-list">
+                <a th:href="@{/user/Reporting}" class="sidebar-btn">
+                    <i class="bi bi-bar-chart"></i> Reporting</a>
+            </div>
+        </div>
+
+        <!-- Section 3: Projects -->
+        <div class="projects-section1">
+            <h3>Projects </h3>
+            <div class="projects-list">
+                <!-- Thymeleaf iteration for projects -->
+                <a th:href="@{/userProjects}" class="sidebar-btn active"><i class="bi bi-folder"></i> All Projects</a>
+            </div>
+        </div>
+
+        <!-- Section 4: Teams -->
+        <div class="teams-section">
+            <h3>Teams </h3>
+            <div class="teams-list">
+                <div class="teams-list">
+                    <a th:href="@{/UserTeam}" class="sidebar-btn browse-teams "><i class="bi bi-people"></i> Browse teams</a>
+    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="main-content">
+            <!-- Incomplete Projects Section -->
+            <div class="content-section">
+                <h3 id="unique-header" >Ongoing Projects</h3>
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            
+                            <th>Project Name</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Tasks</th>
+                            <th>Team</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incomplete-task-table-body">
+                        <tr th:each="projectWithTasks : ${projectsWithTasks}">
+                            <td th:text="${projectWithTasks.project.projectName}">Name</td>
+                            <td th:text="${projectWithTasks.project.projectDueDate}">Due Date</td>
+                            <td th:text="${projectWithTasks.project.status}">Status</td>
+                            <td>
+                                <!-- Loop through each task in the project -->
+                                <div class="task" th:each="task : ${projectWithTasks.tasks}">
+                                    <span th:text="${task.taskName}"></span>
+                                </div>
+                            </td>
+                            <td th:text="${projectWithTasks.project.team}">Team</td>
+                        </tr>
+                    </tbody>
+                    
+                </table>
+            </div>
+    
+            <!-- Completed Projects Section -->
+            <div class="content-section">
+                <h3 id="unique-header" >Completed Projects</h3>
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>Project Name</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Tasks</th>
+                            <th>Team</th>
+                        </tr>
+                    </thead>
+                    <tbody id="completed-task-table-body">
+                        <tr th:each="projectWithTasks : ${completedProjects}">
+                            <td th:text="${projectWithTasks.project.projectName}">Name</td>
+                            <td th:text="${projectWithTasks.project.projectDueDate}">Due Date</td>
+                            <td th:text="${projectWithTasks.project.status}">Status</td>
+                            <td>
+                                <!-- Loop through each task in the project -->
+                                <div class="task" th:each="task : ${projectWithTasks.tasks}">
+                                    <span th:text="${task.taskName}"></span>
+                                </div>
+                            </td>
+                            <td th:text="${projectWithTasks.project.team}">Team</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+
+
+
+    
+    <!-- Include jQuery and Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+   
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar visibility
+            document.querySelector('.menu-btn').addEventListener('click', function () {
+                document.querySelector('.sidebar').classList.toggle('hidden');
+                document.querySelector('.main-content').classList.toggle('expanded');
+            });
+
+            // Toggle Create button options menu visibility
+            const createBtn = document.getElementById('create-btn');
+            const optionsMenu = document.getElementById('options-menu');
+            createBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                optionsMenu.classList.toggle('show');
+            });
+
+            // Close options menu when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!optionsMenu.contains(event.target) && !createBtn.contains(event.target)) {
+                    optionsMenu.classList.remove('show');
+                }
+            });
+
+           
+        });
+
+        function showTab(tabName) {
+            var tabs = document.getElementsByClassName('task-content');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].style.display = 'none';
+            }
+            document.getElementById(tabName).style.display = 'block';
+        }
+        const profileBtn = document.querySelector('.profile-btn');
+        const profileMenu = document.getElementById('profile-menu');
+        
+        profileBtn.addEventListener('click', function() {
+            profileMenu.classList.toggle('show');
+        });
+        
+        document.addEventListener('click', function(event) {
+            if (!profileBtn.contains(event.target) && !profileMenu.contains(event.target)) {
+                profileMenu.classList.remove('show');
+            }
+        });
+         // Display current date
+    var dateDisplay = document.getElementById('date-display');
+    var today = new Date();
+    var options = { year: 'numeric', month: 'long', day: 'numeric' };
+    dateDisplay.textContent = today.toLocaleDateString(undefined, options);
+
+     
+    function showTab(tab) {
+    console.log("Showing tab: " + tab); // Debugging line
+    // Hide all task content sections
+    document.querySelectorAll('.task-content').forEach(function(content) {
+        content.style.display = 'none';
+    });
+    // Show the selected tab
+    document.getElementById(tab).style.display = 'block';
+    }
+     window.onload = function() {
+        showTab('ongoing-tasks');
+    };
+
+
+    </script>
+         <script>
+            const pages = [
+            { name: "Reporting", url: /*[[@{user/Reporting}]]*/ 'user/Reporting' },
+                { name: "MyTask", url: /*[[@{/EmpTask}]]*/ 'EmpTask' },
+                { name: "Inbox", url: /*[[@{/UserMessage}]]*/ 'UserMessage' },
+                { name: "All Projects", url: /*[[@{/userProjects}]]*/ 'userProjects' },
+                { name: "Browse Teams", url: /*[[@{/UserTeam}]]*/ 'UserTeam' }
+            ];
+        
+            // Show suggestions as the user types
+            function showSuggestions(query) {
+                const suggestionsBox = document.getElementById('suggestions-box');
+                suggestionsBox.innerHTML = ''; // Clear previous suggestions
+                if (query.length === 0) {
+                    suggestionsBox.style.display = 'none'; // Hide if no input
+                    return;
+                }
+        
+                const filteredPages = pages.filter(page => page.name.toLowerCase().includes(query.toLowerCase()));
+        
+                filteredPages.forEach(page => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.textContent = page.name;
+                    suggestionItem.onclick = () => window.location.href = page.url; // Navigate on click
+                    suggestionsBox.appendChild(suggestionItem);
+                });
+        
+                suggestionsBox.style.display = filteredPages.length > 0 ? 'block' : 'none'; // Show or hide suggestions
+            }
+        </script>
+</body>
+</html>
