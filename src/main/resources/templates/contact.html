@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column; 
+            justify-content: flex-start; 
+            align-items: center;
+            height: 100vh;
+        }
+
+        header {
+            background: #003366;
+            color: white;
+            padding: 15px 0;
+            width: 100%;
+        }
+
+        #raw1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        #raw1 span {
+            display: flex;
+            align-items: center;
+        }
+
+        #raw1 a {
+            margin-left: 20px;
+            color: white;
+            text-decoration: none;
+        }
+
+        #raw1 a.active {
+            color: #f9f9f9;
+        }
+
+        #raw1 a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            margin-top: 80px; 
+        }
+
+        .contact-form h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+        }
+
+        .btn-submit {
+            background-color: #0072ff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+
+        .success-message {
+            color: green;
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div id="raw1">
+            <span>
+                <h1 th:text="'Welcome, '+ ' Let\'s the journey begin!!'"></h1>
+                <i id="maleicon" class="fas fa-male" style="color:white;"></i>
+            </span>
+            <span>
+                <a id="home" th:href="@{/welcome}" th:classappend="${page == 'home'} ? 'active' : ''">Home</a>
+                <a id="account" th:href="@{/account}" th:classappend="${page == 'account'} ? 'active' : ''">My Account</a>
+                <a id="contact" th:href="@{/contact}" th:classappend="${page == 'contact'} ? 'active' : ''">Contact</a>
+                <a id="about" th:href="@{/about}" th:classappend="${page == 'about'} ? 'active' : ''">About</a>
+            </span>
+        </div>
+    </header>
+    <div class="container">
+        <form th:action="@{/contact}" method="post" class="contact-form">
+            <h2>Contact Us</h2>
+            <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="messageInfo">Message</label>
+                <textarea id="messageInfo" name="messageInfo" required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Send Message</button>
+        </form>
+    </div>
+</body>
+</html>

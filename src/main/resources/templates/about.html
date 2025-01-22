@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Travel Plus</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        header {
+            background: #003366;
+            color: white;
+            padding: 15px 0;
+        }
+        #raw1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        #raw1 span {
+            display: flex;
+            align-items: center;
+        }
+        #raw1 a {
+            margin-left: 20px;
+            color: white;
+            text-decoration: none;
+        }
+        #raw1 a.active {
+            color: #f9f9f9;
+        }
+        #raw1 a:hover {
+            text-decoration: underline;
+        }
+        nav .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .active {
+            color: black;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .about-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .about-section h1 {
+            margin-top: 0;
+            font-size: 2.5rem;
+            color: #1E90FF;
+        }
+
+        .about-section p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .team {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .team-member {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1 1 300px;
+            text-align: center;
+        }
+
+        .team-member img {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+
+        .team-member h3 {
+            margin-top: 0;
+            color: #1E90FF;
+        }
+
+        .team-member p {
+            line-height: 1.4;
+            color: #666;
+        }
+
+        footer {
+            background-color: #1E90FF;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div id="raw1">
+            <span>
+                <h1 th:text="'Welcome, ' + ${user.fullname} + ' Let\'s the journey begin!!'"></h1>
+                <i id="maleicon" class="fas fa-male" style="color:white;"></i>
+            </span>
+            <span>
+                <a id="home" th:href="@{/welcome}" th:classappend="${page == 'home'} ? 'active' : ''">Home</a>
+                <a id="account" th:href="@{/account}" th:classappend="${page == 'account'} ? 'active' : ''">My Account</a>
+                <a id="contact" th:href="@{/contact}" th:classappend="${page == 'contact'} ? 'active' : ''">Contact</a>
+                <a id="about" th:href="@{/about}" th:classappend="${page == 'about'} ? 'active' : ''">About</a>
+            </span>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="about-section">
+            <h1>About Travel Plus</h1>
+            <p>Welcome to Travel Plus! We are your go-to travel agency for unforgettable journeys. Our dedicated team is here to ensure you have the best travel experience possible.</p>
+            <p>At Travel Plus, we believe that travel is not just about the destination but the journey itself. We are committed to providing personalized travel experiences that cater to your unique preferences and needs. From exotic getaways to adventurous expeditions, we have it all covered.</p>
+        </section>
+
+        <section class="team">
+            <div class="team-member">
+                <img src="travelagency/src/main/resources/static/profile-pic.png" alt="Team Member">
+                <h3>Aditya Mishra</h3>
+                <p>Founder & CEO</p>
+            </div>
+            <!-- Add more team members as needed -->
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Travel Plus. All rights reserved.</p>
+    </footer>
+</body>
+</html>
