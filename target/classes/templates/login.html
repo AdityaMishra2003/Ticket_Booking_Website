@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        @charset "ISO-8859-1";
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .bg, .bg2, .bg3 {
+            animation: slide 3s ease-in-out infinite alternate;
+            background-image: linear-gradient(-60deg, #6c3 50%, #09f 50%);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: -50%;
+            right: -50%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .bg2 {
+            animation-direction: alternate-reverse;
+            animation-duration: 4s;
+        }
+
+        .bg3 {
+            animation-duration: 5s;
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translateX(-25%);
+            }
+            100% {
+                transform: translateX(25%);
+            }
+        }
+        .container{
+            margin-right: 500px;
+
+        }
+        .form-container {
+            margin-left: 550px;
+            background-color: #fff;
+            width: 400px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        h2 {
+            color: #5e057e;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5e057e;
+        }
+
+        input {
+            width: calc(100% - 40px);
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 10px;
+            top: 34%;
+            font-size: 20px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #5e057e;
+        }
+
+        button {
+            background-color: #5e057e;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #299d00;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+        }
+
+        .error-message,
+        .logout-message {
+            background-color: #5e057e;
+            color: #fff;
+            padding: 10px;
+            border-radius: 3px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .bi-google {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+
+    <div class="container">
+        <div class="form-container">
+            <div th:if="${param.error}">
+                <div class="error-message">
+                    <p>Invalid Username or Password</p>
+                </div>
+            </div>
+            <div th:if="${param.logout}">
+                <div class="logout-message">
+                    <p>Logout Successful!</p>
+                </div>
+            </div>
+
+            <h2>Login</h2>
+            <form th:action="@{/login}" method="post" role="form" th:object="${user}">
+                <label for="username">Username:</label>
+                <input th:field="*{username}" type="text" id="username" name="username" placeholder="Enter your Username" required>
+
+                <label for="password">Password:</label>
+                <div class="password-container">
+                    <input th:field="*{password}" type="password" id="password" name="password" placeholder="Enter your Password" required>
+                    <span class="eye-icon" onclick="togglePassword()">
+                        👁
+                    </span>
+                </div>
+
+                <button type="submit">Login</button>
+            </form>
+
+            <p class="form-footer">Don't have an account? <a th:href="@{/register}">Register</a> here.</p>
+
+            <p class="form-footer">
+                <a th:href="@{/oauth2/authorization/google}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
+                        <path d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z"/>
+                    </svg>
+                    Login Through Google
+                </a>
+            </p>
+
+            <p class="form-footer"><a th:href="@{/forgot-password}">Forgot Password?</a></p>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            var passwordInput = document.getElementById('password');
+            var eyeIcon = document.querySelector('.eye-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.textContent = '🙈'; // Change to 'show' icon
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.textContent = '👁'; // Change to 'hide' icon
+            }
+        }
+    </script>
+</body>
+</html>

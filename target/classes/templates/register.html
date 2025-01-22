@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <meta charset="UTF-8">
+ <title>Registration</title>
+ <style>
+    @charset "ISO-8859-1";
+html {
+    height:100%;
+}
+ 
+body {
+    margin:0;
+}
+ 
+.bg {
+    animation:slide 3s ease-in-out infinite alternate;
+    background-image: linear-gradient(-60deg, #6c3 50%, #09f 50%);
+    bottom:0;
+    left:-50%;
+    opacity:.5;
+    position:fixed;
+    right:-50%;
+    top:0;
+    z-index:-1;
+}
+ 
+.bg2 {
+    animation-direction:alternate-reverse;
+    animation-duration:4s;
+}
+ 
+.bg3 {
+    animation-duration:5s;
+} 
+@keyframes slide {
+    0% {
+        transform:translateX(-25%);
+    }
+ 
+    100% {
+        transform:translateX(25%);
+    }
+}
+  body {
+   font-family: 'Arial', sans-serif;
+   margin: 0;
+   padding: 0;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: 100vh;
+   background-color: #f4f4f4;
+  }
+
+  .form-container {
+   background-color: #fff;
+   width: 400px;
+   padding: 20px;
+   border-radius: 8px;
+   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  h2 {
+   color: #5e057e;
+   text-align: center;
+   margin-bottom: 20px;
+  }
+
+  label {
+   display: block;
+   margin-bottom: 8px;
+   color: #5e057e;
+  }
+
+  input {
+   width: 100%;
+   padding: 8px;
+   margin-bottom: 16px;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   box-sizing: border-box;
+  }
+
+  button {
+   background-color: #5e057e;
+   color: #fff;
+   padding: 10px 20px;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   font-weight: bold;
+   transition: background-color 0.3s;
+  }
+
+  button:hover {
+   background-color: #299d00;
+  }
+
+  .form-footer {
+   text-align: center;
+   margin-top: 20px;
+   color: #888;
+  }
+
+  .success-message {
+   background-color: #5e057e;
+   color: #fff;
+   padding: 10px;
+   border-radius: 3px;
+   text-align: center;
+  }
+ </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+ <div class="form-container">
+
+  <div th:if="${param.success}">
+   <div class="success-message">
+    <p>Registration Successful!</p>
+   </div>
+  </div>
+
+  <h2>Registration</h2>
+  <form th:action="@{/register}" method="post" role="form" th:object="${user}">
+   <label for="fullname">FullName:</label>
+   <input th:field="*{fullname}" type="text" id="fullname" name="fullname" placeholder="Enter your FullName" required>
+
+   <label for="username">Username (Email):</label>
+   <input th:field="*{username}" type="email" id="username" name="username" placeholder="Enter your Email" 
+   pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"  title="Please enter a valid email address" required>
+
+   <label for="password">Password:</label>
+   <input th:field="*{password}" type="password" id="password" name="password" placeholder="Enter your Password" required>
+
+   <button type="submit">Register</button>
+  </form>
+  <div>
+   <span th:if="${Userexist}" style="color: red;">Username is Taken</span>
+  </div>
+  <div>
+   <span class="form-footer">Already have an account? <a th:href="@{/login}">Login</a> here.</span>
+  </div>
+ </div>
+</body>
+</html>

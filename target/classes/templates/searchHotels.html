@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Search Results</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #003366;
+            color: white;
+        }
+        .ripple-background {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+            background: #f1f1f1;
+            padding-top: 20px;
+        }
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            animation: ripple 15s infinite;
+            opacity: 0.5;
+        }
+        .circle.xxlarge {
+            width: 400px;
+            height: 400px;
+            left: -100px;
+            top: -100px;
+        }
+        .circle.xlarge {
+            width: 300px;
+            height: 300px;
+            left: 50%;
+            top: -150px;
+            margin-left: -150px;
+        }
+        .circle.large {
+            width: 200px;
+            height: 200px;
+            left: 50%;
+            top: 50%;
+            margin-left: -100px;
+            margin-top: -100px;
+        }
+        .circle.medium {
+            width: 100px;
+            height: 100px;
+            left: 50%;
+            bottom: 150px;
+            margin-left: -50px;
+        }
+        .circle.small {
+            width: 50px;
+            height: 50px;
+            right: 50px;
+            bottom: 50px;
+        }
+        .shade1 {
+            background: rgba(255, 0, 0, 0.5);
+        }
+        .shade2 {
+            background: rgba(0, 255, 0, 0.5);
+        }
+        .shade3 {
+            background: rgba(0, 0, 255, 0.5);
+        }
+        .shade4 {
+            background: rgba(255, 255, 0, 0.5);
+        }
+        .shade5 {
+            background: rgba(0, 255, 255, 0.5);
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0.8);
+            }
+            50% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(0.8);
+            }
+        }
+        .attractive-input {
+            width: calc(100% - 130px); /* Adjust width as needed */
+            padding: 10px;
+            margin-right: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .attractive-input:focus {
+            border-color: #0066cc;
+            box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+            outline: none;
+        }
+        .attractive-button {
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .attractive-button:hover {
+            background-color: #005bb5;
+            box-shadow: 0 5px 10px rgba(0, 91, 181, 0.5);
+        }
+        .attractive-button:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="ripple-background">
+        <div class="circle xxlarge shade1"></div>
+        <div class="circle xlarge shade2"></div>
+        <div class="circle large shade3"></div>
+        <div class="circle medium shade4"></div>
+        <div class="circle small shade5"></div>
+        <h1>Hotel Search Results</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>City</th>
+                    <th>Hotel Name</th>
+                    <th>Available Rooms</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="hotel : ${Hotels}">
+                    <td th:text="${hotel.cityname}"></td>
+                    <td th:text="${hotel.hotelname}"></td>
+                    <td th:text="${hotel.availableRooms}"></td>
+                    <td>
+                        <form th:action="@{/bookHotels}" method="post">
+                            <input type="hidden" name="hotelname" th:value="${hotel.hotelname}">
+                            <input type="hidden" name="cityname" th:value="${hotel.cityname}">
+                            <input type="hidden" name="checkIn" th:value="${checkIn}">
+                            <input type="hidden" name="checkOut" th:value="${checkOut}">
+                            <input type="number" name="numberOfPersons" min="1" placeholder="Number of Persons" class="attractive-input">
+                            <button type="submit" class="attractive-button">Book</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

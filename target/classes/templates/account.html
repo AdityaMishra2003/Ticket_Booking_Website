@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f3f4f6;
+        }
+        header {
+            background: #003366;
+            color: white;
+            padding: 15px 0;
+        }
+        #raw1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        #raw1 span {
+            display: flex;
+            align-items: center;
+        }
+        #raw1 a {
+            margin-left: 20px;
+            color: white;
+            text-decoration: none;
+        }
+        #raw1 a.active {
+            color: #f9f9f9;
+        }
+        #raw1 a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .content h1 {
+            margin-top: 0;
+        }
+        .content p {
+            margin: 5px 0;
+        }
+        .booking-list {
+            margin-top: 20px;
+        }
+        .booking-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .booking-item button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .booking-item button:hover {
+            background-color: #c0392b;
+        }
+        .logout-button {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .logout-button form {
+            display: inline;
+        }
+        .logout-button button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .logout-button button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div id="raw1">
+            <span>
+                <h1 th:text="'Welcome, ' + ${user.fullname} + ' Let\'s the journey begin!!'"></h1>
+                <i id="maleicon" class="fas fa-male" style="color:white;"></i>
+            </span>
+            <span>
+                <a id="home" th:href="@{/welcome}" th:classappend="${page == 'home'} ? 'active' : ''">Home</a>
+                <a id="account" th:href="@{/account}" th:classappend="${page == 'account'} ? 'active' : ''">My Account</a>
+                <a id="contact" th:href="@{/contact}" th:classappend="${page == 'contact'} ? 'active' : ''">Contact</a>
+                <a id="about" th:href="@{/about}" th:classappend="${page == 'about'} ? 'active' : ''">About</a>
+            </span>
+        </div>
+    </header>
+    <div class="content">
+        <h1>My Account</h1>
+        <p><strong>Full Name:</strong> <span th:text="${user.fullname}"></span></p>
+        <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+        
+        <div class="booking-list">
+            <h2>Bus Bookings</h2>
+            <div th:each="booking : ${bookings}" class="booking-item">
+                <p><strong>Bus Number:</strong> <span th:text="${booking.busnumber}"></span></p>
+                <p><strong>Number of Persons:</strong> <span th:text="${booking.numberOfPersons}"></span></p>
+                <p><strong>Name:</strong> <span th:text="${booking.name}"></span></p>
+                <p><strong>Phone:</strong> <span th:text="${booking.phone}"></span></p>
+                <form th:action="@{/account/deleteBooking/{id}(id=${booking.id})}" method="post">
+                    <button type="submit">Delete Booking</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="booking-list">
+            <h2>Hotel Bookings</h2>
+            <div th:each="hotelBooking : ${hotelBookings}" class="booking-item">
+                <p><strong>Hotel Name:</strong> <span th:text="${hotelBooking.hotelname}"></span></p>
+                <p><strong>City:</strong> <span th:text="${hotelBooking.cityname}"></span></p>
+                <p><strong>Check-in:</strong> <span th:text="${hotelBooking.checkIn}"></span></p>
+                <p><strong>Check-out:</strong> <span th:text="${hotelBooking.checkOut}"></span></p>
+                <p><strong>Guest Name:</strong> <span th:text="${hotelBooking.name}"></span></p>
+                <p><strong>Guest Phone:</strong> <span th:text="${hotelBooking.phone}"></span></p>
+                <form th:action="@{/account/deleteHotelBooking/{id}(id=${hotelBooking.id})}" method="post">
+                    <button type="submit">Delete Booking</button>
+                </form>
+            </div>
+        </div>
+        <div class="booking-list">
+            <h2>Train Bookings</h2>
+            <div th:each="trainBooking : ${trainBookings}" class="booking-item">
+                <p><strong>Train Number:</strong> <span th:text="${trainBooking.trainnumber}"></span></p>
+                <p><strong>Train Name:</strong> <span th:text="${trainBooking.trainname}"></span></p>
+                <p><strong>Number of Persons:</strong> <span th:text="${trainBooking.numberOfPersons}"></span></p>
+                <p><strong>Name:</strong> <span th:text="${trainBooking.name}"></span></p>
+                <p><strong>Phone:</strong> <span th:text="${trainBooking.phone}"></span></p>
+                <form th:action="@{/account/deleteTrainBooking/{id}(id=${trainBooking.id})}" method="post">
+                    <button type="submit">Delete Booking</button>
+                </form>
+            </div>
+        </div>
+        <div class="booking-list">
+            <h2>Flight Bookings</h2>
+            <div th:each="flightBooking : ${flightBookings}" class="booking-item">
+                <p><strong>Flight Number:</strong> <span th:text="${flightBooking.flightnumber}"></span></p>
+                <p><strong>Flight Name:</strong> <span th:text="${flightBooking.flightname}"></span></p>
+                <p><strong>Number of Persons:</strong> <span th:text="${flightBooking.numberOfPersons}"></span></p>
+                <p><strong>Name:</strong> <span th:text="${flightBooking.name}"></span></p>
+                <p><strong>Phone:</strong> <span th:text="${flightBooking.phone}"></span></p>
+                <form th:action="@{/account/deleteFlightBooking/{id}(id=${flightBooking.id})}" method="post">
+                    <button type="submit">Delete Booking</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="logout-button">
+            <form action="/logout" method="post">
+                <button type="submit">Log Out</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
