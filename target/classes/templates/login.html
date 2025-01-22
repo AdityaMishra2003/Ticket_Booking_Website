@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   <style>
+            @import url('https://fonts.googleapis.com/css?family=Raleway:400,700');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;    
+            font-family: 'Raleway', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, #D0E6F2, #A6B8E7);
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .screen {        
+            background: linear-gradient(90deg, #4B4C8D, #7A7D99);
+            position: relative;    
+            height: 600px;
+            width: 390px; 
+            box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.2);
+            border-radius: 15px; 
+            overflow: hidden; 
+        }
+
+        .screen__content {
+            z-index: 1;
+            position: relative;    
+            height: 100%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column; /* Align elements vertically */
+            align-items: center; /* Center-align content */
+            justify-content: center; /* Center vertically */
+        }
+
+        .screen__background {        
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            -webkit-clip-path: inset(0 0 0 0);
+            clip-path: inset(0 0 0 0);    
+        }
+
+        .screen__background__shape {
+            transform: rotate(45deg);
+            position: absolute;
+        }
+
+        .screen__background__shape1 {
+            height: 520px;
+            width: 520px;
+            background: #FFF;    
+            top: -50px;
+            right: 120px;    
+            border-radius: 0 72px 0 0;
+        }
+
+        .screen__background__shape2 {
+            height: 220px;
+            width: 220px;
+            background: #6C63AC;    
+            top: -172px;
+            right: 0;    
+            border-radius: 32px;
+        }
+
+        .screen__background__shape3 {
+            height: 540px;
+            width: 190px;
+            background: linear-gradient(270deg, #4B4C8D, #6A679E);
+            top: -24px;
+            right: 0;    
+            border-radius: 32px;
+        }
+
+        .screen__background__shape4 {
+            height: 400px;
+            width: 200px;
+            background: #7E7BB9;    
+            top: 420px;
+            right: 50px;    
+            border-radius: 60px;
+        }
+
+        .login__field {
+            padding: 20px 0;    
+            position: relative;    
+            width: 100%; /* Ensure full width for fields */
+        }
+
+        .login__icon {
+            position: absolute;
+            top: 30px;
+            color: #7875B5;
+            transition: color 0.3s ease; /* Added transition */
+        }
+
+        .login__input {
+            border: none;
+            border-bottom: 2px solid #D1D1D4;
+            background: none;
+            padding: 10px;
+            padding-left: 40px; /* Increased for icon */
+            font-weight: 700;
+            width: 100%; /* Full width */
+            transition: .2s;
+            color: #333; 
+            margin: 0; /* Remove margins to fill space */
+        }
+
+        .login__input:focus {
+            outline: none;
+            border-bottom-color: #6A679E;
+            color: #000; 
+        }
+
+        .login__submit {
+            background: #fff;
+            font-size: 14px;
+            margin-top: 30px;
+            padding: 16px 20px;
+            border-radius: 26px;
+            border: 1px solid #909091;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center text */
+            width: 100%;
+            color: #4C489D;
+            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .login__submit:hover {
+            background: #E0E0E0; 
+            transform: scale(1.05); 
+        }
+
+        .button__icon {
+            font-size: 24px;
+            margin-left: 10px; /* Reduced margin */
+            color: #2c25b1;
+        }
+
+        .social-login {    
+            position: absolute;
+            height: auto; 
+            width: 100%; 
+            text-align: center; 
+            bottom: 20px; 
+            color: #fff;
+        }
+
+        .social-icons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social-login__icon {
+            padding: 20px 10px;
+            color: #fff;
+            text-decoration: none;    
+            text-shadow: 0px 0px 8px #7875B5;
+            transition: transform 0.3s ease; /* Added transition */
+        }
+
+        .social-login__icon:hover {
+            transform: scale(1.5);    
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 33px;
+            color: #7875B5;
+            cursor: pointer;
+            transition: color 0.3s ease; /* Added transition */
+        }
+
+        .toggle-password:hover {
+            color: #4C489D; /* Change color on hover */
+        }
+
+        .links a {
+            display: inline-block;
+            margin: 10px 0;
+            color: #040292; 
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s ease, background-color 0.3s ease;
+            padding: 8px 12px; 
+            border-radius: 5px; 
+            position: relative; 
+        }
+
+        .links a:hover {
+            color: #D50000; 
+            background-color: rgb(245, 245, 245); 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Added media query for responsiveness */
+        @media (max-width: 400px) {
+            .screen {
+                width: 90%;
+            }
+
+            .login__submit {
+                font-size: 12px;
+            }
+        }
+        .error-message,
+        .logout-message {
+            background-color: #5e057e;
+            color: #fff;
+            padding: 10px;
+            width: 250px;
+            height: 35px;
+            border-radius: 3px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .success-message {
+            background-color: #dff0d8; /* Light green background for success */
+            color: #3c763d; /* Dark green text */
+            padding: 15px; /* Padding for the message */
+            text-align: center; /* Center the text */
+            border: 1px solid #d6e9c6; /* Border for a subtle effect */
+            border-radius: 5px; /* Rounded corners */
+            margin-bottom: 20px; /* Space below the message */
+            width: 100%; /* Full width */
+        }
+
+   </style>
+</head>
+<body>
+    <div class="container">
+       
+        <div class="screen">
+            <div class="screen__content">
+
+                <!-- Error message section -->
+                <div th:if="${param.error}">
+                    <div class="error-message">
+                        <p>Invalid Username or Password</p>
+                    </div>
+                </div>
+                <div th:if="${param.logout}">
+                    <div class="logout-message">
+                        <p>Logout Successful!</p>
+                    </div>
+                </div>
+                <div th:if="${param.success}">
+                    <div class="success-message">
+                        <p>Registration Successful!</p>
+                    </div>     
+                </div>
+                <div th:if="${session.errorMessage}" style="background-color: red; color: white; padding: 10px; border-radius: 5px; text-align: center;">
+                    <p th:text="${session.errorMessage}"></p>
+                </div>
+    
+                <form class="login" th:action="@{/login}" method="post">
+                    <div class="login__field">
+                        <i class="login__icon fas fa-user"></i>
+                        <input type="text" name="username" class="login__input" placeholder="User name / Email" required>
+                    </div>
+                    <div class="login__field">
+                        <i class="login__icon fas fa-lock"></i>
+                        <input type="password" id="password" name="password" class="login__input" placeholder="Password" required>
+                        <i class="toggle-password fas fa-eye" onclick="togglePassword()"></i>
+                    </div>
+                    <button class="button login__submit" type="submit">
+                        <span class="button__text">Log In Now</span>
+                        <i class="button__icon fas fa-chevron-right"></i>
+                    </button>
+                </form>
+                <div class="social-login">
+                    <h3>Log in via</h3>
+                    <div class="social-icons">
+                        <a th:href="@{/oauth2/authorization/google}" class="social-login__icon fab fa-google"></a>
+                        <!-- Add more social icons here if needed -->
+                    </div>
+                </div>
+                <div class="links">
+                    <a th:href="@{/register}" class="register-link">New Employee? Register</a>
+                    <a th:href="@{/forgot-password}" class="forgot-link">Forgot PassWord?</a>
+                </div>
+            </div>
+            <div class="screen__background">
+                <div class="screen__background__shape screen__background__shape4"></div>
+                <div class="screen__background__shape screen__background__shape3"></div>
+                <div class="screen__background__shape screen__background__shape2"></div>
+                <div class="screen__background__shape screen__background__shape1"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function togglePassword() {
+            var passwordInput = document.getElementById("password");
+            var toggleIcon = document.querySelector(".toggle-password");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
+</body>
+</html>

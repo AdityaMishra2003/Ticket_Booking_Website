@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="" th:href="@{/css/AdminPortfolio.css}"/>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="create-container">
+                <button class="create-btn" id="create-btn">
+                    <div class="create-icon">
+                        <i class="bi bi-plus"></i>
+                    </div>
+                    Create
+                </button>
+                <div class="options-menu" id="options-menu">
+                    <!-- Add your 6 options here -->
+                    <button><i class="bi bi-check2-circle"></i> Task</button>
+                    <button class="add-project"><i class="bi bi-folder"></i> Project</button>
+                    <button class="add-team"><i class="bi bi-people"></i> Team</button>
+                   
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Popup Modal -->
+       <!-- Task Popup Modal -->
+        <div id="task-popup" class="task-popup">
+               <div class="popup-content">
+                <span class="close-btn" id="close-btn">&times;</span>
+                <h2>Task Details</h2>
+                <form method="POST" action="/tasks/save"> <!-- Ensure method and action are correct -->
+                    <input type="hidden" name="redirectUrl" value="/AdminProject">
+                    <label for="task-name">Task Name:</label>
+                   <input type="text" id="task-name" name="task-name" placeholder="Enter Task Name" required>
+
+                   <label for="employee-select">Select Employees:</label>
+                   <select id="employee-select" name="employee-select" multiple required> <!-- Change name to employeeIds -->
+                       <option th:each="user : ${users}" 
+                               th:value="${user.empId}" 
+                               th:text="${user.fullname}">
+                       </option>
+                   </select>
+
+                   <label for="project-select">Select Project:</label>
+                   <select id="project-select" name="projectId" required>
+                       <option th:each="project : ${OnGoingProject}" 
+                               th:value="${project.projectId}" 
+                               th:text="${project.projectName}">
+                       </option>
+                   </select>
+
+
+                   <label for="due-date">Due Date:</label>
+                   <input type="date" id="due-date" name="dueDate" min="" required> <!-- Ensure the name matches the controller -->
+
+                   <button type="submit">Save Task</button> <!-- Change to type="submit" -->
+                           </form>
+                  </div>
+        </div>
+
+        <div class="header-center">
+            <div class="search-container">
+                <i class="bi bi-search"></i>
+                <input type="text" class="search-bar" placeholder="Search..." onkeyup="showSuggestions(this.value)">
+                <div class="suggestions" id="suggestions-box"></div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="profile-btn">
+                <i class="bi bi-person-circle"></i>
+            </button>
+            <div class="dropdown-menu" id="profile-menu">
+                <form action="/AdminProfile" method="get">
+                    <button>Profile</button>
+                </form>
+                <form action="/AdminPassword" method="get">
+                    <button>Settings</button>
+                </form>
+            <form action="/logout" method="post">
+                <button type="submit">Log Out</button>
+            </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <!-- Section 1: Navigation -->
+        <div class="sidebar-menu">
+            <a th:href="@{/AdminDashboard}" class="sidebar-btn"><i class="bi bi-house"></i> Home</a>
+            <a th:href="@{/AdminTask}" class="sidebar-btn"><i class="bi bi-list-check"></i> My Tasks</a>
+            <a th:href="@{/AdminMessage}" class="sidebar-btn"><i class="bi bi-envelope"></i> Inbox </a>
+
+        </div>
+
+        <!-- Section 2: Insights -->
+        <div class="insights-section">
+            <h3>Insights </h3>
+            <div class="insights-list">
+                <a th:href="@{/admin/Reporting}" class="sidebar-btn "><i class="bi bi-bar-chart"></i> Reporting</a>
+                <a th:href="@{/AdminPortfolio}" class="sidebar-btn active" ><i class="bi bi-briefcase"></i> Portfolios</a>
+            </div>
+        </div>
+
+        <!-- Section 3: Projects -->
+        <div class="projects-section1">
+            <h3>Projects <button class="add-icon-project"><i class="bi bi-plus"></i></button></h3>
+            <div class="projects-list">
+                <!-- Thymeleaf iteration for projects -->
+                <a th:href="@{/AdminProject}" class="sidebar-btn "><i class="bi bi-folder"></i> All Projects</a>
+
+            </div>
+        </div>
+
+        <!-- Section 4: Teams -->
+        <div class="teams-section">
+            <h3>Teams <button class="add-icon"><i class="bi bi-plus"></i></button></h3>
+            <div class="teams-list">
+                <a th:href="@{/AdminTeam}" class="sidebar-btn browse-teams"><i class="bi bi-people"></i> Browse teams</a>
+
+            </div>
+        </div>
+    </div>
+
+ <!-- Modal Popup for Creating a Team -->
+ <div class="modal fade" id="createTeamModal" tabindex="-1" aria-labelledby="createTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createTeamModalLabel">Create New Team</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Updated form with action to submit to /teams/create -->
+                <form id="createTeamForm" method="POST" action="/teams/create">
+                    <input type="hidden" name="redirectUrl" value="/AdminProject">
+                    <div class="form-group">
+                        <label for="teamName">Team Name</label>
+                        <input type="text" class="form-control" id="teamName" name="teamName" placeholder="Enter team name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="teamMembers">Select Team Members</label>
+                        <select multiple class="form-control" id="teamMembers" name="memberIds">
+                            <option th:each="user : ${users}" th:value="${user.empId}" th:text="${user.fullname}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Team</button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createProjectModalLabel">Create New Project</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createProjectForm" method="POST" action="/projects/create">
+                    <input type="hidden" name="redirectUrl" value="/AdminProject">
+                    <div class="form-group">
+                        <label for="projectId">Project Id</label>
+                        <input type="text" class="form-control" id="projectId" name="projectId" placeholder="Enter project Id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectName">Project Name</label>
+                        <input type="text" class="form-control" id="projectName" name="projectName" placeholder="Enter project name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDueDate">Project Due Date</label>
+                        <input type="date" class="form-control" id="projectDueDate" name="projectDueDate" required>
+                    </div>
+
+                    <div class="form-group team-members-group">
+                        <label for="TeamMembers">Select Team</label>
+                        <!-- Multiple select field -->
+                        <select class="form-control" id="TeamMembers" name="teamName" required>
+                            <!-- Dynamically rendered options for team members -->
+                            <option th:each="team : ${teams}" th:value="${team.teamName}" th:text="${team.teamName}">John Doe</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="main-content">
+    <!-- Search bar and button -->
+    <div class="search-container1">
+        <input type="text" id="search-input1" placeholder="Search by name or email">
+        <ul id="suggestions" class="suggestions-list"></ul> <!-- Suggestions list -->
+    </div>
+
+    <!-- Cards Container -->
+    <div class="cards-container" id="cards-container">
+        <!-- Cards will be dynamically generated here -->
+        <div th:each="details : ${overallDetailsList}" class="card" 
+        th:attr="data-name=${details.fullName}, data-email=${details.email}">
+   
+
+            <i class="bi bi-person-circle profile-icon"></i>
+            <div class="employee-info">
+                <h3 class="employee-name" th:text="${details.fullName}"></h3>
+                <p class="employee-id" th:text="'Employee ID: ' + ${details.empId}"></p>
+                <p class="employee-email" th:text="${details.email}"></p>
+                <p class="projects-completed" th:text="'Projects Completed: ' + ${details.completedProjects}"></p>
+                <p class="tasks-completed" th:text="'Tasks Completed: ' + ${details.completedTask}"></p>
+            </div>
+            <div class="social-icons">
+                <a href="#" class="social-icon instagram" title="Instagram"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="social-icon facebook" title="Facebook"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="social-icon linkedin" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                <a href="#" class="social-icon twitter" title="Twitter"><i class="bi bi-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Include jQuery and Bootstrap scripts -->
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+        // Show the 'Create New Project' modal when the add-icon-project in Projects section is clicked
+        $('.add-icon-project , .add-project').click(function() {
+            $('#createProjectModal').modal('show');
+        });
+    
+        // Initialize Select2 for team members selection
+        $(document).ready(function() {
+        $('#TeamMembers').select2({
+            placeholder: "Select team members",
+            allowClear: true,
+        });
+            });
+           });
+    
+        </script>
+    
+
+
+
+
+    <script>
+
+      
+   
+    //-----------------------------------do not change anything--------------------------------//
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar visibility
+        document.querySelector('.menu-btn').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('hidden');
+            document.querySelector('.main-content').classList.toggle('expanded');
+        });
+    
+       // Get elements
+        
+            // Toggle options menu
+            document.getElementById('create-btn').addEventListener('click', function(event) {
+            const optionsMenu = document.getElementById('options-menu');
+            optionsMenu.classList.toggle('show');
+            event.stopPropagation(); // Prevents the click event from propagating to the document
+        });
+
+        document.addEventListener('click', function(event) {
+            const optionsMenu = document.getElementById('options-menu');
+            const createBtn = document.getElementById('create-btn');
+
+            // Check if the click was outside the menu and the button
+            if (!optionsMenu.contains(event.target) && event.target !== createBtn) {
+                optionsMenu.classList.remove('show');
+            }
+        });
+
+        $(document).ready(function() {
+        $('#employee-select').select2({
+            placeholder: "Select Employees",
+            allowClear: true,
+            closeOnSelect: false
+        });
+        // Show task popup
+        document.querySelector('.options-menu button').addEventListener('click', function() {
+            document.getElementById('task-popup').style.display = 'flex';
+        });
+
+        // Hide task popup
+        document.getElementById('close-btn').addEventListener('click', function() {
+            document.getElementById('task-popup').style.display = 'none';
+        });
+
+        const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+        document.getElementById('due-date').setAttribute('min', today);
+        // Close task popup when 'Save Task' button is clicked
+
+        document.querySelector('#task-popup button[type="button"]').addEventListener('click', function() {
+            const selectedEmployees = $('#employee-select').val();
+            console.log("Selected Employees: ", selectedEmployees);
+            document.getElementById('task-popup').style.display = 'none';
+        });
+    });
+    
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.profile-btn').addEventListener('click', function(event) {
+        const profileMenu = document.getElementById('profile-menu');
+        profileMenu.classList.toggle('show');
+        event.stopPropagation(); // Prevents the click from propagating to the document
+    });
+
+    // Close the dropdown if clicked outside
+    document.addEventListener('click', function(event) {
+        const profileMenu = document.getElementById('profile-menu');
+        if (!profileMenu.contains(event.target) && !event.target.closest('.profile-btn')) {
+            profileMenu.classList.remove('show');
+        }
+    });
+});
+
+        // Close options menu when clicking outside
+        document.addEventListener('click', function (event) {
+            if (!optionsMenu.contains(event.target) && !createBtn.contains(event.target)) {
+                optionsMenu.classList.remove('show');
+            }
+        });
+    
+        // Initialize Bootstrap modal
+        $('.add-icon , .add-team').click(function() {
+            $('#createTeamModal').modal('show');
+        });
+        $(document).ready(function() {
+            $('#teamMembers').select2({
+                placeholder: "Select team members",
+                allowClear: true,
+                closeOnSelect: false // Keeps the dropdown open after selection
+            });
+        });
+    });
+    
+    function showTab(tabName) {
+        var tabs = document.getElementsByClassName('task-content');
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].style.display = 'none';
+        }
+        document.getElementById(tabName).style.display = 'block';
+    }
+    const profileBtn = document.querySelector('.profile-btn');
+    const profileMenu = document.getElementById('profile-menu');
+    
+    profileBtn.addEventListener('click', function() {
+        profileMenu.classList.toggle('show');
+    });
+    
+    document.addEventListener('click', function(event) {
+        if (!profileBtn.contains(event.target) && !profileMenu.contains(event.target)) {
+            profileMenu.classList.remove('show');
+        }
+    });
+    
+    // Hide all task content sections
+    document.querySelectorAll('.task-content').forEach(function(content) {
+        content.style.display = 'none';
+    });
+    // Show the selected tab
+    document.getElementById(tab).style.display = 'block';
+
+    </script>
+    <script>
+   document.addEventListener('DOMContentLoaded', function () {
+    const searchButton = document.getElementById('search-btn1');
+    const searchInput = document.getElementById('search-input1');
+    const suggestionsList = document.getElementById('suggestions');
+    const cardsContainer = document.getElementById('cards-container');
+
+    // Get all employee cards already populated by Thymeleaf
+    const employeeCards = Array.from(cardsContainer.getElementsByClassName('card'));
+
+    // Search functionality
+    function updateSuggestions() {
+        const query = searchInput.value.toLowerCase();
+        suggestionsList.innerHTML = ''; // Clear the suggestion list
+        if (query) {
+            employeeCards.forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                const email = card.dataset.email.toLowerCase();
+                if (name.includes(query) || email.includes(query)) {
+                    const li = document.createElement('li');
+                    li.textContent = card.dataset.name; // Display the name in the suggestion list
+                    li.dataset.card = card.dataset.name; // Store the card identifier
+                    suggestionsList.appendChild(li);
+                }
+            });
+            suggestionsList.style.display = suggestionsList.children.length ? 'block' : 'none';
+        } else {
+            suggestionsList.style.display = 'none';
+        }
+    }
+
+    // Event listener for input in the search field
+    searchInput.addEventListener('input', updateSuggestions);
+
+    // Event listener for clicking on suggestions
+    suggestionsList.addEventListener('click', function (e) {
+        if (e.target.tagName === 'LI') {
+            const cardName = e.target.dataset.card;
+            const card = employeeCards.find(c => c.dataset.name === cardName); // Find the matching card
+            if (card) {
+                card.classList.add('highlight-temporary');
+                setTimeout(() => {
+                    card.classList.remove('highlight-temporary');
+                }, 2000); // Highlight for 2 seconds
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                searchInput.value = ''; // Clear the search input
+                suggestionsList.style.display = 'none'; // Hide the suggestion list
+            }
+        }
+    });
+
+    // Event listener for the search button
+    searchButton.addEventListener('click', function () {
+        updateSuggestions(); // Ensure suggestions are updated on button click
+    });
+});
+
+</script>
+<script>
+    const pages = [
+        { name: "Portfolios", url: /*[[@{/AdminPortfolio}]]*/ 'AdminPortfolio' },
+        { name: "MyTask", url: /*[[@{/AdminTask}]]*/ 'AdminTask' },
+        { name: "Reporting",  url: /*[[@{/admin/Reporting}]]*/ 'admin/Reporting'},
+        { name: "Inbox", url: /*[[@{/AdminMessage}]]*/ 'AdminMessage' },
+        { name: "All Projects", url: /*[[@{/AdminProject}]]*/ 'AdminProject' }
+    ];
+
+    // Show suggestions as the user types
+    function showSuggestions(query) {
+        const suggestionsBox = document.getElementById('suggestions-box');
+        suggestionsBox.innerHTML = ''; // Clear previous suggestions
+        if (query.length === 0) {
+            suggestionsBox.style.display = 'none'; // Hide if no input
+            return;
+        }
+
+        const filteredPages = pages.filter(page => page.name.toLowerCase().includes(query.toLowerCase()));
+
+        filteredPages.forEach(page => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.textContent = page.name;
+            suggestionItem.onclick = () => window.location.href = page.url; // Navigate on click
+            suggestionsBox.appendChild(suggestionItem);
+        });
+
+        suggestionsBox.style.display = filteredPages.length > 0 ? 'block' : 'none'; // Show or hide suggestions
+    }
+</script>
+
+</body>
+</html>

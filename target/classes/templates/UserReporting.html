@@ -1,0 +1,400 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="" th:href="@{/css/UserReporting.css}"/>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-btn">
+                <i class="bi bi-list"></i>
+            </button>
+           
+        </div>
+        <div class="header-center">
+            <div class="search-container">
+                <i class="bi bi-search"></i>
+                <input type="text" class="search-bar" placeholder="Search..." onkeyup="showSuggestions(this.value)">
+                <div class="suggestions" id="suggestions-box"></div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="profile-btn">
+                <i class="bi bi-person-circle"></i>
+            </button>
+            <div class="dropdown-menu" id="profile-menu">
+                <form action="/UserProfile" method="get">
+                    <button type="submit">Profile</button>
+                </form>
+                <form action="/UserPassword" method="get">
+                    <button>Settings</button>
+                </form>
+                <form action="/logout" method="post">
+                    <button type="submit">Log Out</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <!-- Section 1: Navigation -->
+        <div class="sidebar-menu">
+            <a th:href="@{/UserDashboard}" class="sidebar-btn">
+                <i class="bi bi-house"></i> Home
+             </a>
+             <a th:href="@{/EmpTask}" class="sidebar-btn">
+                <i class="bi bi-bar-chart"></i> MyTask
+            </a>
+            <a th:href="@{/UserMessage}" class="sidebar-btn"><i class="bi bi-envelope">
+
+            </i> Inbox</a>
+        </div>
+
+        <!-- Section 2: Insights -->
+        <div class="insights-section">
+            <h3>Insights </h3>
+            <div class="insights-list">
+                <a th:href="@{/user/Reporting}" class="sidebar-btn">
+                    <i class="bi bi-bar-chart active"></i> Reporting</a>
+            </div>
+        </div>
+
+        <!-- Section 3: Projects -->
+        <div class="projects-section1">
+            <h3>Projects </h3>
+            <div class="projects-list">
+                <!-- Thymeleaf iteration for projects -->
+                <a th:href="@{/userProjects}" class="sidebar-btn"><i class="bi bi-folder"></i> All Projects</a>
+            </div>
+        </div>
+
+        <!-- Section 4: Teams -->
+        <div class="teams-section">
+            <h3>Teams </h3>
+            <div class="teams-list">
+                <div class="teams-list">
+                    <a th:href="@{/UserTeam}" class="sidebar-btn browse-teams "><i class="bi bi-people"></i> Browse teams</a>
+    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="cards">
+            <div class="card">
+                <h2>Completed tasks</h2>
+                <p class="count" id="completedCount" th:text="${completedTasksCount}">0</p>
+            </div>
+            <div class="card">
+                <h2>Ongoing tasks</h2>
+                <p class="count" id="incompleteCount" th:text="${ongoingTasksCount}">0</p>
+            </div>
+            <div class="card">
+                <h2>Overdue tasks</h2>
+                <p class="count" id="overdueCount" th:text="${overdueTasksCount}">0</p>
+            </div>
+            <div class="card">
+                <h2>Total tasks</h2>
+                <p class="count" id="totalCount" th:text="${countTotalTasks}">0</p>
+            </div>
+        </div>
+        <div class="charts">
+            <div class="chart">
+                <h3>Tasks Completed This Year</h3>
+                <canvas id="myBarChart"></canvas>
+            </div>
+            <div class="chart">
+                <h3>Project Completion</h3>
+                <canvas id="donutChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <!-- Include jQuery and Bootstrap scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+   
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar visibility
+            document.querySelector('.menu-btn').addEventListener('click', function () {
+                document.querySelector('.sidebar').classList.toggle('hidden');
+                document.querySelector('.main-content').classList.toggle('expanded');
+            });
+
+            // Toggle Create button options menu visibility
+            const createBtn = document.getElementById('create-btn');
+            const optionsMenu = document.getElementById('options-menu');
+            createBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                optionsMenu.classList.toggle('show');
+            });
+
+            // Close options menu when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!optionsMenu.contains(event.target) && !createBtn.contains(event.target)) {
+                    optionsMenu.classList.remove('show');
+                }
+            });
+
+           
+        });
+
+        function showTab(tabName) {
+            var tabs = document.getElementsByClassName('task-content');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].style.display = 'none';
+            }
+            document.getElementById(tabName).style.display = 'block';
+        }
+        const profileBtn = document.querySelector('.profile-btn');
+        const profileMenu = document.getElementById('profile-menu');
+        
+        profileBtn.addEventListener('click', function() {
+            profileMenu.classList.toggle('show');
+        });
+        
+        document.addEventListener('click', function(event) {
+            if (!profileBtn.contains(event.target) && !profileMenu.contains(event.target)) {
+                profileMenu.classList.remove('show');
+            }
+        });
+         // Display current date
+    var dateDisplay = document.getElementById('date-display');
+    var today = new Date();
+    var options = { year: 'numeric', month: 'long', day: 'numeric' };
+    dateDisplay.textContent = today.toLocaleDateString(undefined, options);
+
+    function showTab(tab) {
+    console.log("Showing tab: " + tab); // Debugging line
+    // Hide all task content sections
+    document.querySelectorAll('.task-content').forEach(function(content) {
+        content.style.display = 'none';
+    });
+
+    // Show the selected tab
+    document.getElementById(tab).style.display = 'block';
+}
+/*---------------------------------------------------------------------------------------------------------------*/
+</script>
+
+<script>
+    const pages = [
+        { name: "Reporting", url: /*[[@{user/Reporting}]]*/ 'user/Reporting' },
+        { name: "MyTask", url: /*[[@{/EmpTask}]]*/ 'EmpTask' },
+        { name: "Inbox", url: /*[[@{/UserMessage}]]*/ 'UserMessage' },
+        { name: "All Projects", url: /*[[@{/userProjects}]]*/ 'userProjects' },
+        { name: "Browse Teams", url: /*[[@{/UserTeam}]]*/ 'UserTeam' }
+    ];
+
+    // Show suggestions as the user types
+    function showSuggestions(query) {
+        const suggestionsBox = document.getElementById('suggestions-box');
+        suggestionsBox.innerHTML = ''; // Clear previous suggestions
+        if (query.length === 0) {
+            suggestionsBox.style.display = 'none'; // Hide if no input
+            return;
+        }
+
+        const filteredPages = pages.filter(page => page.name.toLowerCase().includes(query.toLowerCase()));
+
+        filteredPages.forEach(page => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.textContent = page.name;
+            suggestionItem.onclick = () => window.location.href = page.url; // Navigate on click
+            suggestionsBox.appendChild(suggestionItem);
+        });
+
+        suggestionsBox.style.display = filteredPages.length > 0 ? 'block' : 'none'; // Show or hide suggestions
+    }
+</script>
+
+<script th:inline="javascript">
+    const ctx = document.getElementById('myBarChart').getContext('2d');
+    const completedTasksByMonth = /*[[${completedTasksByMonth}]]*/ []; // Ensure this is a valid JSON array
+
+    const myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Completed Tasks',
+                data: completedTasksByMonth,
+                backgroundColor: function(context) {
+                    const chart = context.chart;
+                    const { ctx, chartArea } = chart;
+
+                    if (!chartArea) {
+                        return null;
+                    }
+
+                    // Create gradient background
+                    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    gradient.addColorStop(0, 'rgba(255, 99, 132, 0.5)');
+                    gradient.addColorStop(1, 'rgba(54, 162, 235, 0.5)');
+                    return gradient;
+                },
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                hoverBackgroundColor: '#ff6384',
+                hoverBorderColor: '#333',
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false,
+                    },
+                    ticks: {
+                        color: '#333',
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                    },
+                    ticks: {
+                        color: '#333',
+                    }
+                }
+            },
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    backgroundColor: '#333',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#ff5722',
+                    borderWidth: 1,
+                },
+                title: {
+                    display: true,
+                    text: 'Monthly Task Completion',
+                    color: '#333',
+                    font: {
+                        size: 18
+                    }
+                }
+            }
+        }
+    });
+
+    // Donut Chart
+    const ctxDonut = document.getElementById('donutChart').getContext('2d');
+    const completedProjectCount = /*[[${completedProjectCount}]]*/ 0; // Ensure this variable is correctly defined
+    const notCompletedProjects = /*[[${notCompletedProjects}]]*/ 0; // Ensure this variable is correctly defined
+    const donutChart = new Chart(ctxDonut, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Not Completed'],
+            datasets: [{
+                label: 'Projects',
+                data: [completedProjectCount, notCompletedProjects],
+                backgroundColor: ['#4e73df', '#e74a3b'],
+                borderColor: ['#2e59d9', '#d9534f'],
+                borderWidth: 3,
+                hoverBackgroundColor: ['#2e59d9', '#d9534f'],
+                hoverBorderColor: '#ffffff',
+                hoverBorderWidth: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        color: '#333',
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#333',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#ff5722',
+                    borderWidth: 1,
+                },
+                title: {
+                    display: true,
+                    text: 'Projects by Completion Status',
+                    color: '#333',
+                    font: {
+                        size: 18
+                    }
+                }
+            }
+        }
+    });
+
+    // Animate Counters
+    function animateCounter(element, targetNumber, duration) {
+    if (targetNumber > 0) {
+        let start = 0; // Starting number
+        const incrementTime = duration / targetNumber; // Time between increments
+
+        const interval = setInterval(() => {
+            start++;
+            element.innerText = start;
+
+            // Add bounce class to the count element
+            element.classList.add('bounce');
+
+            // Remove the bounce class after the animation is complete
+            setTimeout(() => {
+                element.classList.remove('bounce');
+            }, 500); // Duration of the bounce animation
+
+            if (start === targetNumber) {
+                clearInterval(interval); // Stop the interval when the target is reached
+            }
+        }, incrementTime);
+    } else {
+        element.innerText = 0; // Set directly to 0 if the target number is 0
+    }
+}
+
+    // Call the animateCounter function for each count
+    document.addEventListener('DOMContentLoaded', () => {
+        const duration = 1000; // Total duration for the animation for each counter
+        const completedTasksCount = /*[[${completedTasksCount}]]*/ 0; // Ensure this variable is correctly defined
+        const ongoingTasksCount = /*[[${ongoingTasksCount}]]*/ 0; // Ensure this variable is correctly defined
+        const overdueTasksCount = /*[[${overdueTasksCount}]]*/ 0; // Ensure this variable is correctly defined
+        const countTotalTasks = /*[[${countTotalTasks}]]*/ 0; // Ensure this variable is correctly defined
+
+        animateCounter(document.getElementById('completedCount'), completedTasksCount, duration); // Target number for completed tasks
+        animateCounter(document.getElementById('incompleteCount'), ongoingTasksCount, duration); // Target number for ongoing tasks
+        animateCounter(document.getElementById('overdueCount'), overdueTasksCount, duration); // Target number for overdue tasks
+        animateCounter(document.getElementById('totalCount'), countTotalTasks, duration); // Target number for total tasks
+    });
+</script>
+
+
+</body>
+</html>
+
+
+
+
+

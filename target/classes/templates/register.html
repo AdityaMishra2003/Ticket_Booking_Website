@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <link rel="stylesheet" href="" th:href="@{/css/register.css}"/> <!-- Separate CSS for buttons -->
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Raleway:400,700');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;    
+            font-family: Raleway, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(90deg, #D0E6F2, #A6B8E7); /* Gradient background */
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .screen {        
+            background: linear-gradient(90deg, #4B4C8D, #7A7D99); /* Gradient background for the registration box */
+            position: relative;    
+            height: 600px;
+            width: 390px; 
+            box-shadow: 0px 0px 24px #5C5696;
+            border-radius: 15px; /* Border-radius for a softer look */
+            padding: 20px; /* Padding to create space inside */
+        }
+
+        .screen__content {
+            z-index: 1;
+            position: relative;    
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align content at the top */
+        }
+
+        .success-message {
+            background-color: #dff0d8; /* Light green background for success */
+            color: #16cb19; /* Dark green text */
+            padding: 15px; /* Padding for the message */
+            text-align: center; /* Center the text */
+            border: 1px solid #d6e9c6; /* Border for a subtle effect */
+            border-radius: 5px; /* Rounded corners */
+            margin-bottom: 20px; /* Space below the message */
+            width: 100%; /* Full width */
+        }
+
+
+        .form-group {
+            margin-bottom: 20px; /* Space between form groups */
+        }
+
+        .form-group label {
+            display: block; /* Make labels block elements */
+            margin-bottom: 5px; /* Space below the label */
+            color: #fff; /* Label color */
+        }
+
+        .form-group input {
+            border: none;
+            border-bottom: 2px solid #D1D1D4;
+            background: none;
+            padding: 10px;
+            padding-left: 24px; /* Padding for consistency */
+            font-weight: 700;
+            width: 100%; /* Full width for inputs */
+            transition: .2s;
+            color: #333; /* Text color */
+        }
+
+        .form-group input:active,
+        .form-group input:focus {
+            outline: none;
+            border-bottom-color: #6A679E; /* Bottom border color on focus */
+            color: #000; /* Darker text on focus */
+        }
+
+        button {
+            background: #fff;
+            font-size: 14px;
+            margin-top: 30px;
+            padding: 16px 20px;
+            border-radius: 26px;
+            border: none; /* Removed border for a cleaner look */
+            text-transform: uppercase;
+            font-weight: 700;
+            width: 100%; /* Full width for the button */
+            color: #4C489D; /* Button text color */
+            box-shadow: 0px 2px 2px #5a5a5c;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        button:hover {
+            background: #E0E0E0; /* Light gray background on hover */
+            transform: scale(1.05); /* Slightly increase size on hover */
+        }
+
+        .error-message {
+            display: none; /* Initially hide error messages */
+            color: red; /* Error message color */
+            font-size: 12px;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0; /* Margin for spacing */
+            color: #fff; /* Text color for options */
+        }
+
+        .link-button {
+            color: #f30e0e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .already-registered {
+            font-weight: bold;
+            text-align: center; /* Center the text */
+            margin-top: 20px; /* Add space above */
+            color: #020202; /* Text color for the link */
+        }
+
+        /* Background shapes */
+        .screen__background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            -webkit-clip-path: inset(0 0 0 0);
+            clip-path: inset(0 0 0 0);
+        }
+
+        .screen__background__shape {
+            transform: rotate(45deg);
+            position: absolute;
+        }
+
+        .screen__background__shape1 {
+            height: 520px;
+            width: 520px;
+            background: #FFF;    
+            top: -50px;
+            right: 120px;    
+            border-radius: 0 72px 0 0;
+        }
+
+        .screen__background__shape2 {
+            height: 220px;
+            width: 220px;
+            background: #6C63AC;    
+            top: -172px;
+            right: 0;    
+            border-radius: 32px;
+        }
+
+        .screen__background__shape3 {
+            height: 540px;
+            width: 190px;
+            background: linear-gradient(270deg, #4B4C8D, #6A679E);
+            top: -24px;
+            right: 0;    
+            border-radius: 32px;
+        }
+
+        .screen__background__shape4 {
+            height: 400px;
+            width: 200px;
+            background: #7E7BB9;    
+            top: 420px;
+            right: 50px;    
+            border-radius: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="screen">
+            <div class="screen__content">
+                <div th:if="${param.success}" class="success-message">
+                    <p>Registration Successful!</p>
+                </div>
+
+                <form th:action="@{/register}" method="post" role="form" th:object="${user}" id="registrationForm">
+                    <div class="form-group">
+                        <label for="fullname">Full Name:</label>
+                        <input th:field="*{fullname}" type="text" id="fullname" name="fullname" placeholder="Enter your Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="empId">Employee ID:</label>
+                        <input th:field="*{empId}" type="text" id="empId" name="empId" placeholder="Enter your Employee ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username (Email):</label>
+                        <input th:field="*{username}" type="email" id="username" name="username" placeholder="Enter your Email" 
+                        pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" title="Please enter a valid email address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input th:field="*{password}" type="password" id="password" name="password" placeholder="Enter your Password" required>
+                    </div>
+                    <button type="submit">Register</button>
+
+                    <div>
+                        <span th:if="${Userexist}" style="color: red;">Username is Taken</span>
+                    </div>
+                    <div class="already-registered">
+                        <p>Already have an account? <a th:href="@{/login}" class="link-button">Login</a> here.</p>
+                    </div>
+                </form>
+            </div>
+            <div class="screen__background">
+                <span class="screen__background__shape screen__background__shape4"></span>
+                <span class="screen__background__shape screen__background__shape3"></span>
+                <span class="screen__background__shape screen__background__shape2"></span>
+                <span class="screen__background__shape screen__background__shape1"></span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
